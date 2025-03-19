@@ -7,11 +7,11 @@ export function createCard(card, deleteCard, likeCard, openImgPopup) {
   cardImage.alt = card.name;
   cardTitle.textContent = card.name;
   cardElement
-  .querySelector(".card__delete-button")
-  .addEventListener("click", deleteCard);
+    .querySelector(".card__delete-button")
+    .addEventListener("click", deleteCard);
   cardElement
-  .querySelector(".card__like-button")
-  .addEventListener("click", likeCard);
+    .querySelector(".card__like-button")
+    .addEventListener("click", likeCard);
   cardImage.addEventListener("click", openImgPopup);
 
   return cardElement;
