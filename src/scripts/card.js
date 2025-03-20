@@ -12,7 +12,7 @@ export function createCard(card, deleteCard, likeCard, openImgPopup) {
   cardElement
     .querySelector(".card__like-button")
     .addEventListener("click", likeCard);
-  cardImage.addEventListener("click", openImgPopup);
+  cardImage.addEventListener("click", () => openImgPopup(card.link, card.name));
 
   return cardElement;
 }
