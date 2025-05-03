@@ -1,5 +1,5 @@
-import { openModal } from "./modal";
-export function createCard(card, deleteCard, addLike, userId, openImgPopup) {
+ 
+   function createCard(card, addLike, popupDelete, userId, openImgPopup) {
     const cardTemplate = document.querySelector("#card-template").content;
     const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
     const cardImage = cardElement.querySelector(".card__image");
@@ -9,7 +9,7 @@ export function createCard(card, deleteCard, addLike, userId, openImgPopup) {
     const cardLikesCounter = cardElement.querySelector(".card__likes-counter");
     cardLikesCounter.textContent = card.likes ? card.likes.length : 0;
     const isLiked = card.likes.some((cardElement) => cardElement._id === userId);
-    const popupDelete = cardElement.querySelector(".popup_type_confirmation");
+  
     cardImage.src = card.link;
     cardImage.alt = card.name;
     cardTitle.textContent = card.name;
@@ -33,27 +33,31 @@ export function createCard(card, deleteCard, addLike, userId, openImgPopup) {
                 console.log("Ошибка", error);
             });
     });
-
-    if (userId !== card.owner._id) {
-        cardDeleteButton.classList.remove("card__delete-button");
-    } else {
-        cardDeleteButton.addEventListener("click", () => {
-            openModal(popupDelete);
-        });
-        cardElement.querySelector(".popup__button").addEventListener("click", () =>
-            deleteCard(card._id)
-                .then(() => {
-                    cardElement.remove();
-                })
-                .catch((error) => {
-                    console.log("Ошибка", error);
-                })
-        );
-    }
-
     cardImage.addEventListener("click", () => {
         openImgPopup(card.link, card.name);
     });
 
+   // cardDeleteButton.addEventListener("click", () => {
+     //   popupDelete(card._id, cardElement)
+    //})
+    
+
+     if (userId === card.owner._id) {
+    
+            cardDeleteButton.style.opacity = 1;
+            cardDeleteButton.addEventListener("click", () => popupDelete(card._id, cardElement)
+        );
+          } else {
+            cardDeleteButton.style.opacity = 0;
+          
+    }
+   
+
     return cardElement;
-}
+};
+
+ const cancelCard = (cardElement) => {
+    cardElement.remove(); 
+ };
+
+ export {createCard, cancelCard};

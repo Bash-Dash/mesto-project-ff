@@ -1,3 +1,4 @@
+
 export function openModal(popup) {
   popup.classList.add("popup_is-opened");
   document.addEventListener("keydown", closeModalEsc);
@@ -19,9 +20,6 @@ export function closeModalOverlay(evt) {
 
 export function closeModalEsc(evt) {
   if (evt.key === "Escape") {
-    const popup = document.querySelector(".popup_is-opened");
-    if (popup) {
-       closeModal(popup);
-    }
+    closeModal(document.querySelector(".popup_is-opened"));
   }
 }
