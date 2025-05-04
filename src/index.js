@@ -1,15 +1,16 @@
 import "./pages/index.css";
 import { openModal, closeModal } from "./scripts/modal.js";
-import { createCard, cancelCard } from "./scripts/card.js";
+import { createCard } from "./scripts/card.js";
 import { enableValidation, clearValidation } from "./scripts/validation.js";
 import {
   getUserData,
   getInitialCards,
   changeProfile,
   postNewCard,
+  addLike,
+  deleteLike,
   deleteCard,
   changeImage,
-  addLike,
   checkPhoto,
 } from "./scripts/api.js";
 
@@ -40,12 +41,6 @@ const profileImg = document.querySelector(".profile__image");
 const newAvatarImg = document.forms["new-avatar"];
 const newAvatar = document.querySelector(".popup__input_type_avatar");
 
-const popupDeleteForm = document.querySelector(".popup_type_confirmation");
-const cardForDelete = {
-  cardId: "",
-  cardElement: null,
-};
-
 const configValidation = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
@@ -65,8 +60,8 @@ Promise.all(activatePage)
     initialCards.forEach(function (item) {
       const newCard = createCard(
         item,
-        popupDelete,
-        addLike,
+        likeCard,
+        removeCard,
         userId,
         openImgPopup
       );
@@ -76,6 +71,62 @@ Promise.all(activatePage)
   .catch((error) => {
     console.log("Ошибка", error);
   });
+
+function openImgPopup(cardImage) {
+  popupImage.src = cardImage.src;
+  popupImage.alt = cardImage.alt;
+  popupCaption.textContent = cardImage.alt;
+  openModal(popupPicture);
+}
+
+function likeCard(
+  cardLikeCounter,
+  cardLikeButton,
+  cardElement,
+  cardData,
+  userId
+) {
+  const isLiked = cardData.likes.some(function (like) {
+    return like._id === userId;
+  });
+  if (isLiked) {
+    deleteLike(cardData._id)
+      .then((card) => {
+        cardLikeButton.classList.remove("card__like-button_is-active");
+        cardLikeCounter.textContent = card.likes.length;
+        cardData.likes = card.likes;
+      })
+      .catch((error) => {
+        console.log("Ошибка", error);
+      });
+  } else {
+    addLike(cardData._id)
+      .then((card) => {
+        cardLikeButton.classList.add("card__like-button_is-active");
+        cardLikeCounter.textContent = card.likes.length;
+        cardData.likes = card.likes;
+      })
+      .catch((error) => {
+        console.log("Ошибка", error);
+      });
+  }
+}
+
+function removeCard(card, cardId) {
+  deleteCard(cardId)
+    .then((data) => {
+      if (data.message === "Пост удалён") {
+        if (card) {
+          card.remove();
+        } else {
+          console.log(`Элемент с ID ${cardId} не найден на странице`);
+        }
+      }
+    })
+    .catch((error) => {
+      console.log("Ошибка", error);
+    });
+}
 
 profileImg.addEventListener("click", () => {
   clearValidation(profileForm, configValidation);
@@ -87,7 +138,6 @@ btnProfile.addEventListener("click", () => {
   nameInput.value = nameTitle.textContent;
   aboutInput.value = descriptionTitle.textContent;
   openModal(editProfile);
-
 });
 
 btnAddCard.addEventListener("click", () => {
@@ -154,8 +204,8 @@ formNewCard.addEventListener("submit", function (evt) {
     .then((data) => {
       const newCard = createCard(
         data,
-        popupDelete,
-        addLike,
+        likeCard,
+        removeCard,
         data.owner._id,
         openImgPopup
       );
@@ -172,32 +222,6 @@ formNewCard.addEventListener("submit", function (evt) {
     });
 });
 
-function deleteForm(evt) {
-  evt.preventDefault();
-  deleteCard(cardForDelete.cardId)
-    .then(() => {
-      cancelCard(cardForDelete.cardElement);
-      closeModal(popupDeleteForm);
-    })
-    .catch((error) => {
-      console.log("Ошибка", error);
-    });
-}
-
-function openImgPopup(imageSrc, imageAlt) {
-  popupImage.src = imageSrc;
-  popupImage.alt = imageAlt;
-  popupCaption.textContent = imageAlt;
-  openModal(popupPicture);
-}
-
-function popupDelete(cardId, cardElement) {
-  cardForDelete.cardId = cardId;
-  cardForDelete.cardElement = cardElement;
-  console.log(popupDeleteForm);
-  openModal(popupDeleteForm);
-}
-//function singInClick() {}
 document.querySelectorAll(".popup__close").forEach(function (button) {
   const btnPopup = button.closest(".popup");
   button.addEventListener("click", () => closeModal(btnPopup));
