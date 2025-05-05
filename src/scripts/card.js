@@ -1,3 +1,5 @@
+import { addLike, deleteLike, deleteCard } from "./api";
+
 export function createCard(
   cardData,
   likeCard,
@@ -35,4 +37,53 @@ export function createCard(
 
   cardImage.addEventListener("click", () => openImgPopup(cardImage));
   return cardElement;
+}
+
+export function likeCard(
+  cardLikeCounter,
+  cardLikeButton,
+  cardElement,
+  cardData,
+  userId
+) {
+  const isLiked = cardData.likes.some(function (like) {
+    return like._id === userId;
+  });
+  if (isLiked) {
+    deleteLike(cardData._id)
+      .then((card) => {
+        cardLikeButton.classList.remove("card__like-button_is-active");
+        cardLikeCounter.textContent = card.likes.length;
+        cardData.likes = card.likes;
+      })
+      .catch((error) => {
+        console.log("Ошибка", error);
+      });
+  } else {
+    addLike(cardData._id)
+      .then((card) => {
+        cardLikeButton.classList.add("card__like-button_is-active");
+        cardLikeCounter.textContent = card.likes.length;
+        cardData.likes = card.likes;
+      })
+      .catch((error) => {
+        console.log("Ошибка", error);
+      });
+  }
+}
+
+export function removeCard(card, cardId) {
+  deleteCard(cardId)
+    .then((data) => {
+      if (data.message === "Пост удалён") {
+        if (card) {
+          card.remove();
+        } else {
+          console.log(`Элемент с ID ${cardId} не найден на странице`);
+        }
+      }
+    })
+    .catch((error) => {
+      console.log("Ошибка", error);
+    });
 }

@@ -1,15 +1,12 @@
 import "./pages/index.css";
 import { openModal, closeModal } from "./scripts/modal.js";
-import { createCard } from "./scripts/card.js";
+import { createCard, likeCard, removeCard } from "./scripts/card.js";
 import { enableValidation, clearValidation } from "./scripts/validation.js";
 import {
   getUserData,
   getInitialCards,
   changeProfile,
   postNewCard,
-  addLike,
-  deleteLike,
-  deleteCard,
   changeImage,
   checkPhoto,
 } from "./scripts/api.js";
@@ -77,55 +74,6 @@ function openImgPopup(cardImage) {
   popupImage.alt = cardImage.alt;
   popupCaption.textContent = cardImage.alt;
   openModal(popupPicture);
-}
-
-function likeCard(
-  cardLikeCounter,
-  cardLikeButton,
-  cardElement,
-  cardData,
-  userId
-) {
-  const isLiked = cardData.likes.some(function (like) {
-    return like._id === userId;
-  });
-  if (isLiked) {
-    deleteLike(cardData._id)
-      .then((card) => {
-        cardLikeButton.classList.remove("card__like-button_is-active");
-        cardLikeCounter.textContent = card.likes.length;
-        cardData.likes = card.likes;
-      })
-      .catch((error) => {
-        console.log("Ошибка", error);
-      });
-  } else {
-    addLike(cardData._id)
-      .then((card) => {
-        cardLikeButton.classList.add("card__like-button_is-active");
-        cardLikeCounter.textContent = card.likes.length;
-        cardData.likes = card.likes;
-      })
-      .catch((error) => {
-        console.log("Ошибка", error);
-      });
-  }
-}
-
-function removeCard(card, cardId) {
-  deleteCard(cardId)
-    .then((data) => {
-      if (data.message === "Пост удалён") {
-        if (card) {
-          card.remove();
-        } else {
-          console.log(`Элемент с ID ${cardId} не найден на странице`);
-        }
-      }
-    })
-    .catch((error) => {
-      console.log("Ошибка", error);
-    });
 }
 
 profileImg.addEventListener("click", () => {
